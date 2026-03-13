@@ -12,7 +12,6 @@ from compliance_engine import ComplianceEngine
 from mock_data import generate_mock_recruiters, get_recruiter_by_id
 from agent import analyze_recruiter_behavior
 
-GROQ_API_KEY = st.secrets["my_api_key"]
 
 def main() -> None:
     """Main Streamlit application entry point."""

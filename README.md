@@ -2,6 +2,10 @@
 
 An **AI Licensing Governance Agent** prototype for a recruitment platform. The system monitors recruiter license usage, detects compliance violations, evaluates recruiter quality, and generates automated governance reports using a **Hybrid AI Agent Architecture**.
 
+## Live Demo
+
+Check out the live application here: [JSO Compliance Sentinel](https://jsocompliance.streamlit.app)
+
 ## AI Agent Architecture
 
 JSO Compliance Sentinel demonstrates a **Hybrid Governance Agent** with two layers:
@@ -78,13 +82,13 @@ set GROQ_API_KEY=your_key_here
 
 **Note:** The system will work without the API key but will only use rule-based analysis (Layer 1). The AI agent (Layer 2) requires the API key.
 
-### 3. Run the Application
+### 3. Run the Application Locally
 
 ```bash
 streamlit run app.py
 ```
 
-The dashboard will open in your browser at `http://localhost:8501`
+The dashboard will open in your browser at `http://localhost:8501`.
 
 ## Usage
 
