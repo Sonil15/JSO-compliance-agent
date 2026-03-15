@@ -2,6 +2,8 @@
 
 An **AI Licensing Governance Agent** prototype for a recruitment platform. The system monitors recruiter license usage, detects compliance violations, evaluates recruiter quality, and generates automated governance reports using a **Hybrid AI Agent Architecture**.
 
+![](mermaid-diagram-1_.png)
+
 ## Live Demo
 
 Check out the live application here: [JSO Compliance Sentinel](https://jsocompliance.streamlit.app)
