@@ -49,6 +49,14 @@ ComplianceResult (score, risk, violations, report, recommendations)
             Dashboard Display
 ```
 
+### Dashboard (Streamlit UI)
+
+The app (`app.py`) uses **Streamlit ≥ 1.33** (`st.fragment`, bordered containers, wide layout):
+
+- **Layout**: Wide page with a **sidebar** (Groq key status, short pipeline summary, privacy note) and a **two-column main area** — **Input** on the left, **Results** on the right after you run an analysis.
+- **Quick load**: The **mock recruiter** dropdown is **always visible** at the top of the input panel (no extra expander click).
+- **Progressive Layer 2**: For **WARNING / HIGH_RISK**, rule-based output (score, report, recommendations) appears first; the **Groq** call runs **off the main thread** inside an **`st.fragment`** that polls until the model returns, so you can read rule results while AI text loads below.
+
 ## Project Structure
 
 ```
@@ -101,14 +109,12 @@ The dashboard will open in your browser at `http://localhost:8501`.
 
 ## Usage
 
-1. **Load Mock Data (Optional)**: Select a pre-configured recruiter example from the dropdown
-2. **Enter Recruiter Metrics**: Input the five required metrics or use loaded mock data
-3. **Run Compliance Analysis**: Click the button to analyze
-4. **View Results**:
-   - Compliance score and risk level
-   - Rule-based compliance report
-   - Rule engine recommendations
-   - **AI Compliance Agent Analysis** — For **SAFE**, an info message explains that the LLM was skipped; for **WARNING / HIGH_RISK**, a structured report appears when **`GROQ_API_KEY`** is set (Streamlit secrets `GROQ_API_KEY` are also supported)
+1. **Optional quick load**: Use **Choose a mock recruiter** at the top of the input column to fill the form with a preset.
+2. **Metrics**: Confirm or edit License ID and the five activity fields.
+3. **Run compliance analysis**: Use the primary button in the input column.
+4. **Results (right column)**:
+   - Summary metrics (two columns: compliance score & violations · risk band & apps today), then status banner, rule-based report, and rule recommendations.
+   - **AI compliance agent** — For **SAFE**, an info message explains that the LLM was skipped. For **WARNING / HIGH_RISK**, a structured report appears when **`GROQ_API_KEY`** is set (Streamlit **`secrets["GROQ_API_KEY"]`** supported for deploys). Without a key, the AI block shows the not-configured warning. While the model runs, rule-based sections above stay visible.
 
 ## Data Models
 
@@ -169,7 +175,8 @@ Then test with the provided mock data examples.
 ✅ **AI-Powered Insights**: Natural language governance recommendations  
 ✅ **Mock Data**: 10 pre-configured test scenarios  
 ✅ **Performance**: < 100ms analysis time (rule engine)  
-✅ **Clean UI**: Color-coded Streamlit dashboard  
+✅ **Dashboard UX**: Wide layout, sidebar context, input vs results columns, bordered sections, mock presets without an extra expander  
+✅ **Progressive AI UI**: Rule output first; Groq analysis loads asynchronously in a fragment for non-SAFE cases  
 ✅ **SAFE optimization**: No Groq API call when risk is **SAFE**  
 ✅ **Conflict-aware AI layer**: Independent assessment plus explicit alignment/conflict sections vs the rule engine  
 ✅ **Fallback Mode**: WARNING/HIGH_RISK still need an API key for Layer 2; Layer 1 always runs
@@ -177,7 +184,7 @@ Then test with the provided mock data examples.
 ## Technology Stack
 
 - **Python 3.10+**: Core language
-- **Streamlit**: Dashboard UI framework
+- **Streamlit (≥ 1.33)**: Dashboard UI (`st.fragment`, wide layout, containers)
 - **Groq SDK**: LLM API integration
 - **llama-3.3-70b-versatile**: AI reasoning model
 

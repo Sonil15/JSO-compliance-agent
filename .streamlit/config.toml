@@ -1,0 +1,7 @@
+[theme]
+# Green / black / white dashboard
+primaryColor = "#22c55e"
+backgroundColor = "#0b0f0b"
+secondaryBackgroundColor = "#141a14"
+textColor = "#f4f4f5"
+font = "sans serif"
