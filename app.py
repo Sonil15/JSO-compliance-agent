@@ -62,7 +62,7 @@ def main() -> None:
     except:
         api_key_configured = bool(os.getenv("GROQ_API_KEY"))
     
-    api_key_status = "✅ Connected" if api_key_configured else "⚠️ Not configured (using rule-based mode only)"
+    api_key_status = "Connected" if api_key_configured else "⚠️ Not configured (using rule-based mode only)"
     st.caption(f"AI Agent Status: {api_key_status}")
     
     # Render input form and get metrics
