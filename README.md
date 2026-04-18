@@ -24,10 +24,13 @@ JSO Compliance Sentinel demonstrates a **Hybrid Governance Agent** with two laye
 - Classifies risk levels (SAFE, WARNING, HIGH_RISK)
 
 ### Layer 2: AI Reasoning Agent (Groq LLM)
-- Uses **Groq LLM (llama-3.3-70b-versatile)** for intelligent analysis
-- Interprets behavior patterns and context
-- Provides governance insights and recommendations
-- Generates natural language compliance intelligence reports
+- Uses **Groq LLM (`llama-3.3-70b-versatile`)** with a structured governance prompt (`agent.py`).
+- **Full context for reconciliation**: Each call includes recruiter activity metrics, rule-engine score/risk/violations, the **same rule-based narrative report** (`ComplianceResult.report`) and **numbered rule recommendations** (`ComplianceResult.recommendations`) produced by Layer 1—so the model can compare its own reasoning with deterministic outputs.
+- **Two-phase reasoning**: The prompt asks the model to assess **metrics alone first** (“independent behavior & risk view”), then reconcile with rule-engine findings (“rule engine summary,” alignment vs tension).
+- **Structured report sections**: Independent view → rule summary → **alignment & conflicts** (agreement, tensions, resolution guidance: rule engine remains authoritative for enforcement/scoring) → governance actions → audit notes.
+- **Guardrails**: Instructions to cite only supplied data (“unknown / not provided” otherwise), avoid inventing JSO license terms/policy, and treat candidate-related data minimally (aggregate metrics only; no inferred CV/personal content).
+- **SAFE bypass**: If Layer 1 classifies risk as **`SAFE`**, **the LLM is not invoked**—the dashboard shows an informational skip message (`AI_SKIPPED_SAFE_MESSAGE` in `agent.py`) instead of consuming API quota.
+- **Sizing**: Prompt targets roughly **350–550 words** of structured output; API `max_tokens` is set to **1200** for headroom.
 
 ### Workflow
 ```
@@ -35,13 +38,15 @@ Recruiter Activity Input
     ↓
 Rule-Based Compliance Engine (Layer 1)
     ↓
-Structured Behavior Summary
+ComplianceResult (score, risk, violations, report, recommendations)
     ↓
-Groq LLM Agent (Layer 2)
-    ↓
-Compliance Intelligence Report
-    ↓
-Dashboard Display
+    ├─ SAFE ──► Skip Groq LLM · show skip message (Layer 2 idle)
+    │
+    └─ WARNING / HIGH_RISK ──► Groq LLM Agent (Layer 2)
+                ↓
+        Compliance Intelligence Report (structured markdown)
+                ↓
+            Dashboard Display
 ```
 
 ## Project Structure
@@ -54,7 +59,6 @@ Dashboard Display
 ├── ai_report.py              # Report generation utilities
 ├── mock_data.py              # Mock data generator
 ├── app.py                    # Streamlit dashboard UI
-├── test_*.py                 # Test suites
 ├── requirements.txt          # Python dependencies
 └── README.md                 # This file
 ```
@@ -69,7 +73,7 @@ pip install -r requirements.txt
 
 ### 2. Configure Groq API Key
 
-The AI agent requires a Groq API key. Get your free API key from [Groq Console](https://console.groq.com/).
+Layer 2 calls Groq only for **WARNING** and **HIGH_RISK** results (see workflow). Get a free API key from [Groq Console](https://console.groq.com/).
 
 **Set the environment variable:**
 
@@ -83,7 +87,9 @@ export GROQ_API_KEY=your_key_here
 set GROQ_API_KEY=your_key_here
 ```
 
-**Note:** The system will work without the API key but will only use rule-based analysis (Layer 1). The AI agent (Layer 2) requires the API key.
+**Notes:**
+- Without the API key, **WARNING** and **HIGH_RISK** runs cannot call Layer 2—the UI shows that the AI agent is not configured. **SAFE** runs never call the LLM anyway (see Layer 2 above).
+- Rule-based analysis (Layer 1) always runs regardless of API key configuration.
 
 ### 3. Run the Application Locally
 
@@ -102,7 +108,7 @@ The dashboard will open in your browser at `http://localhost:8501`.
    - Compliance score and risk level
    - Rule-based compliance report
    - Rule engine recommendations
-   - **AI Compliance Agent Analysis** (if API key is configured)
+   - **AI Compliance Agent Analysis** — For **SAFE**, an info message explains that the LLM was skipped; for **WARNING / HIGH_RISK**, a structured report appears when **`GROQ_API_KEY`** is set (Streamlit secrets `GROQ_API_KEY` are also supported)
 
 ## Data Models
 
@@ -164,7 +170,9 @@ Then test with the provided mock data examples.
 ✅ **Mock Data**: 10 pre-configured test scenarios  
 ✅ **Performance**: < 100ms analysis time (rule engine)  
 ✅ **Clean UI**: Color-coded Streamlit dashboard  
-✅ **Fallback Mode**: Works without AI agent (rule-based only)
+✅ **SAFE optimization**: No Groq API call when risk is **SAFE**  
+✅ **Conflict-aware AI layer**: Independent assessment plus explicit alignment/conflict sections vs the rule engine  
+✅ **Fallback Mode**: WARNING/HIGH_RISK still need an API key for Layer 2; Layer 1 always runs
 
 ## Technology Stack
 
@@ -172,7 +180,6 @@ Then test with the provided mock data examples.
 - **Streamlit**: Dashboard UI framework
 - **Groq SDK**: LLM API integration
 - **llama-3.3-70b-versatile**: AI reasoning model
-- **Pytest**: Testing framework
 
 ## License & Compliance
 
